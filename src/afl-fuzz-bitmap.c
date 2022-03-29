@@ -24,6 +24,7 @@
  */
 
 #include "afl-fuzz.h"
+#include "afl-fuzz-funcov.h"
 #include <limits.h>
 #if !defined NAME_MAX
   #define NAME_MAX _XOPEN_NAME_MAX
@@ -497,7 +498,13 @@ save_if_interesting(afl_state_t *afl, void *mem, u32 len, u8 fault) {
     if (unlikely(fd < 0)) { PFATAL("Unable to create '%s'", queue_fn); }
     ck_write(fd, mem, len, queue_fn);
     close(fd);
+
     add_to_queue(afl, queue_fn, len, 0);
+
+    /* funcov */
+    if(afl->funcov_mode == 1 ){
+      funcov(queue_fn,afl,mem,len);
+    }
 
 #ifdef INTROSPECTION
     if (afl->custom_mutators_count && afl->current_custom_fuzz) {

@@ -104,6 +104,7 @@ void afl_fsrv_init(afl_forkserver_t *fsrv) {
 
   /* exec related stuff */
   fsrv->child_pid = -1;
+  fsrv->funcov_pid = -1;
   fsrv->map_size = get_map_size();
   fsrv->real_map_size = fsrv->map_size;
   fsrv->use_fauxsrv = false;
@@ -140,6 +141,7 @@ void afl_fsrv_init_dup(afl_forkserver_t *fsrv_to, afl_forkserver_t *from) {
   // These are forkserver specific.
   fsrv_to->out_dir_fd = -1;
   fsrv_to->child_pid = -1;
+  fsrv_to->funcov_pid = -1;
   fsrv_to->use_fauxsrv = 0;
   fsrv_to->last_run_timed_out = 0;
 
@@ -1240,6 +1242,8 @@ void afl_fsrv_start(afl_forkserver_t *fsrv, char **argv,
 void afl_fsrv_kill(afl_forkserver_t *fsrv) {
 
   if (fsrv->child_pid > 0) { kill(fsrv->child_pid, fsrv->kill_signal); }
+  if (fsrv->funcov_pid > 0) {kill(fsrv->funcov_pid, fsrv->kill_signal); }
+
   if (fsrv->fsrv_pid > 0) {
 
     kill(fsrv->fsrv_pid, fsrv->kill_signal);
