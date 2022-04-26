@@ -46,6 +46,8 @@
 #include "forkserver.h"
 #include "common.h"
 
+#include "funcov.h"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -410,6 +412,10 @@ struct foreign_sync {
 };
 
 typedef struct afl_state {
+
+  u8 funcov_mode ;
+  u8 sancov_mode ;
+  funcov_t funcov ;
 
   /* Position of this state in the global states list */
   u32 _id;
@@ -984,6 +990,12 @@ struct custom_mutator {
   void (*afl_custom_deinit)(void *data);
 
 };
+
+/* FUNCOV */
+void funcov_shm_deinit (afl_state_t * afl) ; // TODO. pass only shm (curr_stat)
+void funcov_init (afl_state_t * init_afl) ;
+int funcov (void * mem, u32 len, u8 * seed_path) ;
+int get_seeds_for_func () ;
 
 void afl_state_init(afl_state_t *, uint32_t map_size);
 void afl_state_deinit(afl_state_t *);

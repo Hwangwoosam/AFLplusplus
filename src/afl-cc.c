@@ -45,6 +45,8 @@
   #define LLVM_MINOR 0
 #endif
 
+
+
 static u8 * obj_path;                  /* Path to runtime libraries         */
 static u8 **cc_params;                 /* Parameters passed to the real CC  */
 static u32  cc_par_cnt = 1;            /* Param count, including argv0      */
@@ -57,13 +59,9 @@ static u8 * lto_flag = AFL_CLANG_FLTO, *argvnull;
 static u8   debug;
 static u8   cwd[4096];
 static u8   cmplog_mode;
-/* funcov */
-static u8* funcov_path;
-static u8 **funcov_params;
-static u32  funcov_par_cnt = 1;
-
 u8          use_stdin;                                             /* dummy */
 // static u8 *march_opt = CFLAGS_OPT;
+char path[PATH_MAX];
 
 enum {
 
@@ -314,97 +312,6 @@ static u8 *find_object(u8 *obj, u8 *argv0) {
 
 }
 
-/* Copy argv to funcov_params */
-static void edit_funcov_params(u32 argc){
-
-  int num = cc_par_cnt;
-
-  u8 ** cc_params_start = cc_params;
-
-  u8 have_o = 0;         /* -o */
-  u8 have_g = 0;         /* -g */
-  u8 have_adr = 0;       /* -fsanitize-address */
-  u8 have_trace = 0;     /* -fsanitize-coverage=trace-pc-guard */    
-  u8 have_rdy = 0;       /* -rdynamic */
-  u8 skip_next = 0;     
-
-  funcov_params = ck_alloc((argc+128) *sizeof(u8*));
-
-  if(plusplus_mode)
-  {
-    funcov_params[0] = "clang++";
-  }else
-  {
-    funcov_params[0] = "clang";
-  }
-
-  while(--num){
-    u8* cur = *(++cc_params_start);
-      
-    if(skip_next){
-      skip_next = 0;
-      continue;
-    }
-
-    if(!strcmp(cur,"-fsanitzie=address")){
-        
-      if(have_adr == 0){
-        continue;
-      }else{
-        have_adr = 1;
-      }
-
-    }
-
-    if((!strncmp(cur,"-fsanitize=fuzzer",strlen("-fsanitize=fuzzer")))&&!have_adr){
-        
-      funcov_params[funcov_par_cnt++] = "-fsanitize=address";
-      have_adr = 1;
-
-      continue;
-    }
-
-    if(!strcmp(cur,"-o")){
-
-      have_o = 1;
-      skip_next = 1;
-      funcov_params[funcov_par_cnt++] = cur;
-        
-      u8 * file_name = *(cc_params_start + 1);
-      funcov_params[funcov_par_cnt++] = alloc_printf("%s_funcov",file_name);
-      continue;
-    } 
-
-    if(!strcmp(cur,"-g")) have_g = 1;
-    if(!strcmp(cur,"-fsanitize-coverage=trace-pc-guard")) have_trace = 1;
-    if(!strcmp(cur,"-rdynamic")) have_rdy = 1;
-    if(strstr(cur,"afl-compiler-rt.o")) continue;
-    
-    funcov_params[funcov_par_cnt++] = cur;
-  }
-
-  if(!have_adr) funcov_params[funcov_par_cnt++] = "-fsanitize=address";
-    
-  if(!have_trace){
-    funcov_params[funcov_par_cnt++] = "-fsanitize-coverage=func,trace-pc-guard";
-  }else{
-    funcov_params[funcov_par_cnt++] = "-fsanitize-coverage=func";
-  }
-
-  if(!have_g) funcov_params[funcov_par_cnt++] = "-g";
-  if(!have_rdy) funcov_params[funcov_par_cnt++] = "-rdynamic";
-
-  if(!have_o){
-    funcov_params[funcov_par_cnt++] = "-o";
-    funcov_params[funcov_par_cnt++] = "afl_funcov";
-  }
-
-  funcov_path = alloc_printf("%s/funcov/trace-pc-guard.o",obj_path);
-  funcov_params[funcov_par_cnt++] = funcov_path;
-
-}
-
-
 /* Copy argv to cc_params, making the necessary edits. */
 
 static void edit_params(u32 argc, char **argv, char **envp) {
@@ -499,7 +406,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
     }
 
     cc_params[0] = alt_cc;
-
   }
 
   if (compiler_mode == GCC || compiler_mode == CLANG) {
@@ -510,7 +416,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
     if (clang_mode || compiler_mode == CLANG) {
 
       cc_params[cc_par_cnt++] = "-no-integrated-as";
-
     }
 
   }
@@ -521,7 +426,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
     cc_params[cc_par_cnt++] = fplugin_arg;
     cc_params[cc_par_cnt++] = "-fno-if-conversion";
     cc_params[cc_par_cnt++] = "-fno-if-conversion2";
-
   }
 
   if (compiler_mode == LLVM || compiler_mode == LTO) {
@@ -545,7 +449,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
       cc_params[cc_par_cnt++] = "-Xclang";
       cc_params[cc_par_cnt++] =
           alloc_printf("%s/afl-llvm-dict2file.so", obj_path);
-
     }
 
     // laf
@@ -563,7 +466,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
         cc_params[cc_par_cnt++] = "-Xclang";
         cc_params[cc_par_cnt++] =
             alloc_printf("%s/split-switches-pass.so", obj_path);
-
       }
 
     }
@@ -575,7 +477,7 @@ static void edit_params(u32 argc, char **argv, char **envp) {
 
         cc_params[cc_par_cnt++] = alloc_printf(
             "-Wl,-mllvm=-load=%s/compare-transform-pass.so", obj_path);
-
+            
       } else {
 
         cc_params[cc_par_cnt++] = "-Xclang";
@@ -637,7 +539,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
         cc_params[cc_par_cnt++] = "-Xclang";
         cc_params[cc_par_cnt++] =
             alloc_printf("%s/split-switches-pass.so", obj_path);
-
       }
 
       cc_params[cc_par_cnt++] = "-fno-inline";
@@ -683,7 +584,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
 #if LLVM_MAJOR >= 11 || (LLVM_MAJOR == 10 && LLVM_MINOR >= 1)
   #if defined __ANDROID__ || ANDROID
         cc_params[cc_par_cnt++] = "-fsanitize-coverage=trace-pc-guard";
-
         instrument_mode = INSTRUMENT_LLVMNATIVE;
   #else
         if (have_instr_list) {
@@ -694,7 +594,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
                 "-fsanitize-coverage-allow/denylist, you can use "
                 "AFL_LLVM_ALLOWLIST/AFL_LLMV_DENYLIST instead.\n");
           cc_params[cc_par_cnt++] = "-fsanitize-coverage=trace-pc-guard";
-        
           instrument_mode = INSTRUMENT_LLVMNATIVE;
 
         } else {
@@ -704,7 +603,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
           cc_params[cc_par_cnt++] = "-Xclang";
           cc_params[cc_par_cnt++] =
               alloc_printf("%s/SanitizerCoveragePCGUARD.so", obj_path);
-
         }
 
   #endif
@@ -715,7 +613,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
               "Using unoptimized trace-pc-guard, upgrade to llvm 10.0.1+ for "
               "enhanced version.\n");
         cc_params[cc_par_cnt++] = "-fsanitize-coverage=trace-pc-guard";
-        
         instrument_mode = INSTRUMENT_LLVMNATIVE;
   #else
         FATAL("pcguard instrumentation requires llvm 4.0.1+");
@@ -726,7 +623,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
 
 #if LLVM_MAJOR >= 4
         cc_params[cc_par_cnt++] = "-fsanitize-coverage=trace-pc-guard";
-        
 #else
         FATAL("pcguard instrumentation requires llvm 4.0.1+");
 #endif
@@ -909,7 +805,7 @@ static void edit_params(u32 argc, char **argv, char **envp) {
     if (!strncmp(cur, "-funroll-loop", 13)) have_unroll = 1;
 
     cc_params[cc_par_cnt++] = cur;
-    
+
   }
 
   // in case LLVM is installed not via a package manager or "make install"
@@ -1009,7 +905,6 @@ static void edit_params(u32 argc, char **argv, char **envp) {
   if (!getenv("AFL_DONT_OPTIMIZE")) {
 
     cc_params[cc_par_cnt++] = "-g";
-
     if (!have_o) cc_params[cc_par_cnt++] = "-O3";
     if (!have_unroll) cc_params[cc_par_cnt++] = "-funroll-loops";
     // if (strlen(march_opt) > 1 && march_opt[0] == '-')
@@ -1247,6 +1142,83 @@ static void edit_params(u32 argc, char **argv, char **envp) {
 
 }
 
+
+// FUNCOV
+static u8 **func_params ; 
+static u32 func_par_cnt = 1 ;
+static u8 f_skip_next = 0 ;
+static u8 o_idx = 0 ;
+
+static void 
+edit_func_params (u32 argc)
+{
+  func_params = ck_alloc((argc + 128) * sizeof(u8 *)) ;
+  
+  if (plusplus_mode) func_params[0] = "clang++" ;
+  else func_params[0] = "clang" ;
+
+  for (int i = 1; i < cc_par_cnt; i++) {
+    if (strstr(cc_params[i], "-fsanitize-coverage=") != NULL) continue ;
+    if (strncmp(cc_params[i], "-o", strlen("-o")) == 0) {
+      f_skip_next = 1 ;
+      o_idx = i ;
+      continue ;
+    }
+    if (f_skip_next) {
+      f_skip_next = 0 ;
+      continue ;
+    }
+    if (strncmp(cc_params[i], "-g", strlen("-g")) == 0) continue ;
+    if (strncmp(cc_params[i], "-rdynamic", strlen("-rdynamic")) == 0) continue ;
+    if (strncmp(cc_params[i], "-fsanitize=fuzzer", strlen("-fsanitize=fuzzer")) == 0) continue ;
+    if (strncmp(cc_params[i],"-O3",strlen("-O3")) == 0){
+      func_params[func_par_cnt++] = "-O0";
+      continue ;
+    } 
+    if (strcmp(cc_params[i], "afl-compiler-rt.o") == 0) continue ;
+    func_params[func_par_cnt++] = cc_params[i] ;
+  }
+
+  func_params[func_par_cnt++] = "-fsanitize=address" ; // TODO. if already exist?
+  func_params[func_par_cnt++] = "-fsanitize-coverage=func" ;
+  // func_params[func_par_cnt++] = alloc_printf("%s/funcov_trace_pc_guard.o", obj_path) ;
+  // func_params[func_par_cnt++] = alloc_printf("%s/funcov_shm_coverage.o", obj_path) ; // TODO.
+  func_params[func_par_cnt++] = "-o" ;
+
+  if (o_idx != 0) {
+    
+    char* ptr = strrchr(cc_params[o_idx+1],'/');
+    
+    u8* tmp;
+  
+    if(ptr != NULL){
+
+      char* str = cc_params[o_idx+1];
+      
+      int len = ptr-str+1;
+      strncpy(path,cc_params[o_idx+1],len);
+      path[len] = '\0';
+
+      func_params[func_par_cnt++] = alloc_printf("%sfuncov_src/%s",path,ptr+1) ;
+      tmp = alloc_printf("%sfuncov_src",path);
+    }else{
+      func_params[func_par_cnt++] = alloc_printf("./funcov_src/%s", cc_params[o_idx + 1]) ;  
+      tmp = alloc_printf("./funcov_src",path);
+    }
+
+     if(access(tmp,F_OK) != 0){
+      if(mkdir(tmp,0700)){ PFATAL("Unable to create '%s'", tmp); }
+      ck_free(tmp);
+    }
+  }
+  else {
+    func_params[func_par_cnt++] = FUNCOV_BIN_DEFAULT ;
+  }
+  func_params[func_par_cnt++] = "-g" ;
+  func_params[func_par_cnt++] = "-rdynamic" ;
+}
+
+
 /* Main entry point */
 
 int main(int argc, char **argv, char **envp) {
@@ -1411,6 +1383,7 @@ int main(int argc, char **argv, char **envp) {
 
       if (!strcmp(argv[i], "--afl_noopt") || !strcmp(argv[i], "--afl-noopt")) {
 
+        passthrough = 1;
         argv[i] = "-g";  // we have to overwrite it, -g is always good
         continue;
 
@@ -2240,7 +2213,7 @@ int main(int argc, char **argv, char **envp) {
 #endif
 
   edit_params(argc, argv, envp);
-  edit_funcov_params(argc);
+  edit_func_params(argc) ;
 
   if (debug) {
 
@@ -2252,33 +2225,43 @@ int main(int argc, char **argv, char **envp) {
     fflush(stderr);
 
   }
-  
-  pid_t child;
-  child = fork();
-  if(child == 0){
 
-    execvp(funcov_params[0],(char**)funcov_params);
+  if (passthrough) {
+    // Q.
+    argv[0] = cc_params[0];
+    execvp(cc_params[0], (char **)argv);
 
-  }else if(child < 0){
+  } else {
+    int child_pid = fork() ;
 
-    FATAL("funcov binary compile failed\n");
-    return 0;
-  
-  }
-
-    if (passthrough) {
-
-      argv[0] = cc_params[0];
-      execvp(cc_params[0], (char **)argv);
-
-    } else {
-
+    if (child_pid == 0) {
       execvp(cc_params[0], (char **)cc_params);
 
+      FATAL("Oops, failed to execute '%s' - check your PATH", cc_params[0]);
     }
+    else if (child_pid > 0) {
+     
+      int second = fork();
+      
+      if(second == 0){
+        execvp(func_params[0], (char **)func_params);
+        FATAL("Oops, failed to execute '%s' - check your PATH", cc_params[0]);
 
-    FATAL("Oops, failed to execute '%s' - check your PATH", cc_params[0]);
+      }else if(second < 0){
+        FATAL("ERROR: afl-cc: fork()");  
+      }
 
-    return 0;
+      wait(0x0);
+      wait(0x0);
+    }
+    else {
+      FATAL("ERROR: afl-cc: fork()");
+    }
+  }
+
+  // FATAL("Oops, failed to execute '%s' - check your PATH", cc_params[0]);
+
+  return 0;
+
 }
 

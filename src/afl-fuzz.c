@@ -27,10 +27,7 @@
 #include "cmplog.h"
 #include <limits.h>
 #include <stdlib.h>
-/* funcov */
-#include "afl-fuzz-funcov.h"
 #include <getopt.h>
-
 #ifndef USEMMAP
   #include <sys/mman.h>
   #include <sys/stat.h>
@@ -48,14 +45,10 @@
 extern u64 time_spent_working;
 #endif
 
-static struct option long_opt[] = {
-  {"funcov",0,0,0}
-  };
-
-static void at_exit () {
+static void at_exit() {
 
   s32   i, pid1 = 0, pid2 = 0, pgrp = -1;
-  char *list[5] = {SHM_ENV_VAR, SHM_FUZZ_ENV_VAR, CMPLOG_SHM_ENV_VAR,FUNCOV_SHM_KEY,NULL};
+  char *list[4] = {SHM_ENV_VAR, SHM_FUZZ_ENV_VAR, CMPLOG_SHM_ENV_VAR, NULL};
   char *ptr;
 
   ptr = getenv("__AFL_TARGET_PID2");
@@ -141,8 +134,6 @@ static void usage(u8 *argv0, int more_help) {
       "                  quad -- see docs/FAQ.md for more information\n"
       "  -f file       - location read by the fuzzed program (default: stdin "
       "or @@)\n"
-      //funcov
-      "  --funcov      - function coverage mode\n"
       "  -t msec       - timeout for each run (auto-scaled, default %u ms). "
       "Add a '+'\n"
       "                  to auto-calculate the timeout, the value being the "
@@ -525,7 +516,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
   if (get_afl_env("AFL_DEBUG")) { debug = afl->debug = 1; }
 
-  afl_state_init(afl, map_size);
+  afl_state_init(afl, map_size); 
   afl->debug = debug;
   afl_fsrv_init(&afl->fsrv);
   if (debug) { afl->fsrv.debug = true; }
@@ -543,23 +534,24 @@ int main(int argc, char **argv_orig, char **envp) {
 
   afl->shmem_testcase_mode = 1;  // we always try to perform shmem fuzzing
 
-  /* funcov */
-  u32 index = 0;
+  int opt_idx = 0 ;
+  static struct option long_options[] = {
+      {"funcov", 0, 0, 0 },
+      { 0, 0, 0, 0 }
+  };
 
   while (
-      /* funcov */
       (opt = getopt_long(
            argc, argv,
-           "+Ab:B:c:CdDe:E:hi:I:f:F:g:G:l:L:m:M:nNOo:p:RQs:S:t:T:UV:WXx:YZ",long_opt,&index)) >=
+           "+Ab:B:c:CdDe:E:hi:I:f:F:g:G:l:L:m:M:nNOo:p:RQs:S:t:T:UV:WXx:YZ", long_options, &opt_idx)) >=
       0) {
-        
+
     switch (opt) {
-
-      /* funcov */
       case 0:
-        if(strcmp(long_opt[index].name,"funcov") == 0)  afl->funcov_mode = 1;
-
-        break;
+        if (opt_idx == 0) {
+          afl->funcov_mode = 1 ;
+        }
+        break ;
 
       case 'g':
         afl->min_length = atoi(optarg);
@@ -1119,7 +1111,6 @@ int main(int argc, char **argv_orig, char **envp) {
               afl->cmplog_enable_transform = 1;
               break;
             default:
-              printf("defalut\n");
               FATAL("Unknown option value '%c' in -l %s", *c, optarg);
 
           }
@@ -2008,7 +1999,7 @@ int main(int argc, char **argv_orig, char **envp) {
   afl->argv = use_argv;
   afl->fsrv.trace_bits =
       afl_shm_init(&afl->shm, afl->fsrv.map_size, afl->non_instrumented_mode);
-  
+
   if (!afl->non_instrumented_mode && !afl->fsrv.qemu_mode &&
       !afl->unicorn_mode && !afl->fsrv.frida_mode && !afl->fsrv.cs_mode &&
       !afl->afl_env.afl_skip_bin_check) {
@@ -2125,9 +2116,9 @@ int main(int argc, char **argv_orig, char **envp) {
 
   }
 
-  /* funcov */
-  if(afl->funcov_mode){
-    funcov_init(afl);
+  // FUNCOV
+  if (afl->funcov_mode) {
+    funcov_init(afl) ;
   }
 
   load_auto(afl);
@@ -2542,6 +2533,11 @@ stop_fuzzing:
   write_bitmap(afl);
   save_auto(afl);
 
+  /* FUNCOV */
+  if (afl->funcov_mode) {
+    get_seeds_for_func() ;
+  }
+
   SAYF(CURSOR_SHOW cLRD "\n\n+++ Testing aborted %s +++\n" cRST,
        afl->stop_soon == 2 ? "programmatically" : "by user");
 
@@ -2605,9 +2601,8 @@ stop_fuzzing:
   destroy_extras(afl);
   destroy_custom_mutators(afl);
   afl_shm_deinit(&afl->shm);
-  /* funcov */
-  funcov_shm_deinit(afl);
-  /* funcov */
+  // if (afl->funcov_mode) funcov_shm_deinit(afl) ;
+
   if (afl->shm_fuzz) {
 
     afl_shm_deinit(afl->shm_fuzz);

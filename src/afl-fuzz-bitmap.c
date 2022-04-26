@@ -24,11 +24,15 @@
  */
 
 #include "afl-fuzz.h"
-#include "afl-fuzz-funcov.h"
+#include "funcov.h"
+
 #include <limits.h>
 #if !defined NAME_MAX
   #define NAME_MAX _XOPEN_NAME_MAX
 #endif
+
+#define EXIT_AT_TARGET_CORPUS_CNT
+#define TARGET_COUPUS_CNT 1760 /* FUNCOV */
 
 /* Write bitmap to file. The bitmap is useful mostly for the secret
    -B option, to focus a separate fuzzing session on a particular
@@ -498,13 +502,12 @@ save_if_interesting(afl_state_t *afl, void *mem, u32 len, u8 fault) {
     if (unlikely(fd < 0)) { PFATAL("Unable to create '%s'", queue_fn); }
     ck_write(fd, mem, len, queue_fn);
     close(fd);
-
     add_to_queue(afl, queue_fn, len, 0);
+    if (afl->funcov_mode) funcov(mem, len, queue_fn) ; 
 
-    /* funcov */
-    if(afl->funcov_mode == 1 ){
-      funcov(queue_fn,afl,mem,len);
-    }
+#ifdef EXIT_AT_TARGET_CORPUS_CNT
+  if (afl->queued_items == TARGET_COUPUS_CNT) PFATAL("Exit at target corpus cnt: %d", TARGET_COUPUS_CNT) ;
+#endif
 
 #ifdef INTROSPECTION
     if (afl->custom_mutators_count && afl->current_custom_fuzz) {
