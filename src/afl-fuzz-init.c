@@ -1920,7 +1920,6 @@ void setup_dirs_fds(afl_state_t *afl) {
 
   }
 
-  
   if (mkdir(afl->out_dir, 0700)) {
 
     if (errno != EEXIST) { PFATAL("Unable to create '%s'", afl->out_dir); }
@@ -1960,19 +1959,26 @@ void setup_dirs_fds(afl_state_t *afl) {
 
   }
 
-  /* funcov diretory */
-  tmp = alloc_printf("%s/funcov",afl->out_dir);
-  if(mkdir(tmp,0700)) {PFATAL("Unable to create '%s'",tmp); }
-  ck_free(tmp);
-  
-  /* funcov individual coverage per seed */
-  tmp = alloc_printf("%s/funcov/funcov_per_coverage",afl->out_dir);
-  if(mkdir(tmp,0700)) {PFATAL("Unable to create '%s'",tmp); }
-  ck_free(tmp);
-  
-  tmp = alloc_printf("%s/funcov/seed_per_func",afl->out_dir);
-  if(mkdir(tmp,0700)) {PFATAL("Unable to create '%s'",tmp); }
-  ck_free(tmp);
+  /* FUNCOV: In funcov_mode, make the proper directories */
+
+  if (afl->funcov_mode) {
+    tmp = alloc_printf("%s/funcov", afl->out_dir) ;
+    if (mkdir(tmp, 0700)) { PFATAL("Unable to create '%s'", tmp); }
+    ck_free(tmp);
+
+     tmp = alloc_printf("%s/funcov/sancov", afl->out_dir) ;
+    if (mkdir(tmp, 0700)) { PFATAL("Unable to create '%s'", tmp); }
+    ck_free(tmp);
+
+    tmp = alloc_printf("%s/funcov/funcov_per_seed", afl->out_dir) ;
+    if (mkdir(tmp, 0700)) { PFATAL("Unable to create '%s'", tmp); }
+    ck_free(tmp);
+
+    tmp = alloc_printf("%s/funcov/seed_per_func", afl->out_dir) ;
+    if (mkdir(tmp, 0700)) { PFATAL("Unable to create '%s'", tmp); }
+    ck_free(tmp);
+
+  }
 
   /* Queue directory for any starting & discovered paths. */
 
