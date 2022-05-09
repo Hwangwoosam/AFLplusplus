@@ -312,12 +312,20 @@ ifdef TEST_MMAP
 endif
 
 .PHONY: all
-all:	funcov test_x86 test_shm test_python ready $(PROGS) afl-as llvm gcc_plugin test_build all_done 
+all:	funcov funcov.o addr2line test_x86 test_shm test_python ready $(PROGS) afl-as llvm gcc_plugin test_build all_done 
 	-$(MAKE) -C utils/aflpp_driver
 
 .PHONY: funcov
 funcov: ./src/funcov_trace_pc_guard.c ./src/funcov_shm_coverage.c
 	$(CC) -fsanitize=address -c ./src/funcov_trace_pc_guard.c ./src/funcov_shm_coverage.c
+
+.PHONY: funcov.o
+funcov.o: ./src/funcov.c
+	$(CC) -c ./src/funcov.c
+
+.PHONY: addr2line
+addr2line: 
+	ar crv libaddr2line.a ./funcov.o ./binutils/binutils/addr2line.o ./binutils/binutils/bucomm.o ./binutils/binutils/version.o ./binutils/binutils/filemode.o ./binutils/bfd/libbfd.a ./binutils/libiberty/libiberty.a  ./binutils/zlib/libz.a
 
 .PHONY: llvm
 llvm:
@@ -443,7 +451,7 @@ src/afl-sharedmem.o : $(COMM_HDR) src/afl-sharedmem.c include/sharedmem.h
 	$(CC) $(CFLAGS) $(CFLAGS_FLTO) -c src/afl-sharedmem.c -o src/afl-sharedmem.o
 
 afl-fuzz: $(COMM_HDR) include/afl-fuzz.h $(AFL_FUZZ_FILES) $(AFL_FUNCOV_FILES) src/afl-common.o src/afl-sharedmem.o src/afl-forkserver.o src/afl-performance.o | test_x86
-	$(CC) $(CFLAGS) $(COMPILE_STATIC) $(CFLAGS_FLTO) $(AFL_FUZZ_FILES) $(AFL_FUNCOV_FILES) src/afl-common.o src/afl-sharedmem.o src/afl-forkserver.o src/afl-performance.o -o $@ $(PYFLAGS) $(LDFLAGS) -lm
+	$(CC) $(CFLAGS) $(COMPILE_STATIC) $(CFLAGS_FLTO) $(AFL_FUZZ_FILES) $(AFL_FUNCOV_FILES) src/afl-common.o src/afl-sharedmem.o src/afl-forkserver.o src/afl-performance.o ./libaddr2line.a -L./binutils ./binutils/bfd/libbfd.a ./binutils/libiberty/libiberty.a  ./binutils/zlib/libz.a -o $@ $(PYFLAGS) $(LDFLAGS) -lm
 
 afl-showmap: src/afl-showmap.c src/afl-common.o src/afl-sharedmem.o src/afl-forkserver.o src/afl-performance.o $(COMM_HDR) | test_x86
 	$(CC) $(CFLAGS) $(COMPILE_STATIC) $(CFLAGS_FLTO) src/$@.c src/afl-common.o src/afl-sharedmem.o src/afl-forkserver.o src/afl-performance.o -o $@ $(LDFLAGS)
