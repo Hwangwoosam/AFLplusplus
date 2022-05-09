@@ -60,6 +60,7 @@ static u8   debug;
 static u8   cwd[4096];
 static u8   cmplog_mode;
 u8          use_stdin;                                             /* dummy */
+u8          funcov_mode = 0;
 // static u8 *march_opt = CFLAGS_OPT;
 char path[PATH_MAX];
 
@@ -794,6 +795,10 @@ static void edit_params(u32 argc, char **argv, char **envp) {
     if (!strcmp(cur, "-shared")) shared_linking = 1;
     if (!strcmp(cur, "-dynamiclib")) shared_linking = 1;
     if (!strcmp(cur, "--target=wasm32-wasi")) wasm_linking = 1;
+    if (!strcmp(cur, "--funcov")){
+      funcov_mode = 1;
+      continue;  
+    }
     if (!strcmp(cur, "-Wl,-r")) partial_linking = 1;
     if (!strcmp(cur, "-Wl,-i")) partial_linking = 1;
     if (!strcmp(cur, "-Wl,--relocatable")) partial_linking = 1;
@@ -1180,42 +1185,24 @@ edit_func_params (u32 argc)
   }
 
   func_params[func_par_cnt++] = "-fsanitize=address" ; // TODO. if already exist?
-  func_params[func_par_cnt++] = "-fsanitize-coverage=func" ;
-  // func_params[func_par_cnt++] = alloc_printf("%s/funcov_trace_pc_guard.o", obj_path) ;
-  // func_params[func_par_cnt++] = alloc_printf("%s/funcov_shm_coverage.o", obj_path) ; // TODO.
+  func_params[func_par_cnt++] = "-fsanitize-coverage=func,trace-pc-guard" ;
+  func_params[func_par_cnt++] = alloc_printf("%s/funcov_trace_pc_guard.o", obj_path) ;
+  func_params[func_par_cnt++] = alloc_printf("%s/funcov_shm_coverage.o", obj_path) ; // TODO.
   func_params[func_par_cnt++] = "-o" ;
 
   if (o_idx != 0) {
-    
-    char* ptr = strrchr(cc_params[o_idx+1],'/');
-    
-    u8* tmp;
-  
-    if(ptr != NULL){
+    func_params[func_par_cnt++] = cc_params[o_idx+1];
 
-      char* str = cc_params[o_idx+1];
-      
-      int len = ptr-str+1;
-      strncpy(path,cc_params[o_idx+1],len);
-      path[len] = '\0';
-
-      func_params[func_par_cnt++] = alloc_printf("%sfuncov_src/%s",path,ptr+1) ;
-      tmp = alloc_printf("%sfuncov_src",path);
-    }else{
-      func_params[func_par_cnt++] = alloc_printf("./funcov_src/%s", cc_params[o_idx + 1]) ;  
-      tmp = alloc_printf("./funcov_src",path);
-    }
-
-     if(access(tmp,F_OK) != 0){
-      if(mkdir(tmp,0700)){ PFATAL("Unable to create '%s'", tmp); }
-      ck_free(tmp);
-    }
   }
-  else {
-    func_params[func_par_cnt++] = FUNCOV_BIN_DEFAULT ;
-  }
+
   func_params[func_par_cnt++] = "-g" ;
   func_params[func_par_cnt++] = "-rdynamic" ;
+  func_params[func_par_cnt++] = alloc_printf("-L./%s",obj_path);
+  func_params[func_par_cnt++] = alloc_printf("%s/libaddr2line.a",obj_path);
+  func_params[func_par_cnt++] = alloc_printf("%s/binutils/bfd/libbfd.a",obj_path);
+  func_params[func_par_cnt++] = alloc_printf("%s/binutils/libiberty/libiberty.a",obj_path);
+  func_params[func_par_cnt++] = alloc_printf("%s/binutils/zlib/libz.a",obj_path);
+  func_params[func_par_cnt++] = "-ldl";
 }
 
 
@@ -2213,8 +2200,9 @@ int main(int argc, char **argv, char **envp) {
 #endif
 
   edit_params(argc, argv, envp);
-  edit_func_params(argc) ;
-
+  if(funcov_mode == 1){
+    edit_func_params(argc) ;
+  }
   if (debug) {
 
     DEBUGF("cd '%s';", getthecwd());
@@ -2232,36 +2220,20 @@ int main(int argc, char **argv, char **envp) {
     execvp(cc_params[0], (char **)argv);
 
   } else {
-    int child_pid = fork() ;
-
-    if (child_pid == 0) {
+    
+    if(funcov_mode == 1)
+    {
+      execvp(func_params[0], (char **)func_params);
+      FATAL("Oops, failed to execute '%s' - check your PATH", cc_params[0]);
+    }else
+    {
       execvp(cc_params[0], (char **)cc_params);
-
       FATAL("Oops, failed to execute '%s' - check your PATH", cc_params[0]);
     }
-    else if (child_pid > 0) {
-     
-      int second = fork();
-      
-      if(second == 0){
-        execvp(func_params[0], (char **)func_params);
-        FATAL("Oops, failed to execute '%s' - check your PATH", cc_params[0]);
 
-      }else if(second < 0){
-        FATAL("ERROR: afl-cc: fork()");  
-      }
-
-      wait(0x0);
-      wait(0x0);
-    }
-    else {
-      FATAL("ERROR: afl-cc: fork()");
-    }
   }
 
-  // FATAL("Oops, failed to execute '%s' - check your PATH", cc_params[0]);
 
   return 0;
-
 }
 

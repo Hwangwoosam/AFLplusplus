@@ -88,7 +88,7 @@ __sanitizer_cov_trace_pc_guard(uint32_t *guard)
   	void *caller = __builtin_return_address(1);
   	
 	char cov_string[STR_BUFF];
-	sprintf(cov_string,"%p,%p",callee,caller);
+	sprintf(cov_string,"%p",callee);
 
 	get_coverage(cov_string) ;
 

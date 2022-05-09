@@ -11,6 +11,7 @@
 #include <sys/types.h>
 
 #include "../include/afl-fuzz.h"
+#include "../binutils/binutils/addr2line.h"
 
 static afl_state_t * afl ;
 static funcov_t * conf ;
@@ -51,6 +52,7 @@ funcov_init (afl_state_t * init_afl)
 {
     afl = init_afl ;
     conf = &(afl->funcov) ; // Q. position?
+
     if (afl->fsrv.use_stdin) afl->funcov.input_type = STDIN ;
     else afl->funcov.input_type = ARG_FILENAME ;
 
@@ -69,10 +71,10 @@ funcov_init (afl_state_t * init_afl)
         char dir_path[PATH_MAX] ;
         strncpy(dir_path, afl->fsrv.target_path, position) ; 
         dir_path[position] = '\0' ;
-        sprintf(afl->funcov.bin_path, "%s/funcov_src/%s", dir_path, afl->fsrv.target_path + position + 1) ;
+        sprintf(afl->funcov.bin_path, "%s/%s/%s", dir_path,afl->funcov.directory_path ,afl->fsrv.target_path + position + 1) ;
     }
     else {
-        sprintf(afl->funcov.bin_path, "./funcov_src/%s", afl->fsrv.target_path) ;
+        sprintf(afl->funcov.bin_path, "./%s/%s",afl->funcov.directory_path,afl->fsrv.target_path) ;
     }
 
     if (access(afl->funcov.bin_path, X_OK) == -1) {
@@ -81,7 +83,7 @@ funcov_init (afl_state_t * init_afl)
     
     sprintf(afl->funcov.out_dir, "%s/funcov", afl->out_dir) ;
 
-    // shm_init(afl) ;
+    shm_init(afl) ;
 }
 
 
@@ -97,7 +99,7 @@ timeout_handler (int sig)
     if (sig == SIGALRM) {
         perror("timeout") ;
         if (kill(child_pid, SIGINT) == -1) {
-            // shm_deinit() ;
+            shm_deinit() ;
             PFATAL("timeout_handler: kill") ;
         }
     }
@@ -111,7 +113,7 @@ execute_target (void * mem, u32 len)
     if (conf->input_type == STDIN) {
         u32 s = write(stdin_pipe[1], mem, len) ;
         if (s != len) {
-            // shm_deinit() ;
+            shm_deinit() ;
             PFATAL("funcov: short write") ;
         }
     }
@@ -128,21 +130,18 @@ execute_target (void * mem, u32 len)
     dup2(stderr_pipe[1], 2) ;
 
     // TODO. ASAN_OPTION
-    char sancov_opt[BUF_SIZE];
-    sprintf(sancov_opt,"ASAN_OPTIONS=coverage=1:coverage_dir=%s/sancov",conf->out_dir);
 
     if (conf->input_type == STDIN) {
         char * args[] = { conf->bin_path, (char *)0x0 } ;
-        char * env[] = {sancov_opt,(char*)0x0};
-        if (execve(conf->bin_path, args,env) == -1) {
-            // shm_deinit() ;
+        if (execv(conf->bin_path, args) == -1) {
+            shm_deinit() ;
             PFATAL("execute_target: execv") ;
         }
     } 
     else if (conf->input_type == ARG_FILENAME) {
         char * args[] = { conf->bin_path, conf->input_file, (char *)0x0 } ;
         if (execv(conf->bin_path, args) == -1) {
-            // shm_deinit() ;
+            shm_deinit() ;
             PFATAL("execute_target: execv") ;
         }
     }
@@ -161,8 +160,9 @@ close_pipes ()
 }
 
 int
-run (void * mem, u32 len,int * pid_num)
+run (void * mem, u32 len)
 {
+    memset(conf->curr_stat, 0, sizeof(cov_stat_t)) ;
 
     if (pipe(stdin_pipe) != 0) goto pipe_err ;
     if (pipe(stdout_pipe) != 0) goto pipe_err ;
@@ -171,16 +171,15 @@ run (void * mem, u32 len,int * pid_num)
     child_pid = fork() ; 
 
     if (child_pid == 0) {
- 
         execute_target(mem, len) ;
     }
     else if (child_pid > 0) {
         close_pipes() ;
     }
     else {
+        shm_deinit() ;
         PFATAL("run: fork") ;
     }
-    *pid_num = child_pid;
 
     int exit_code ;
     wait(&exit_code) ;
@@ -188,6 +187,7 @@ run (void * mem, u32 len,int * pid_num)
     return exit_code ;
 
 pipe_err:
+    shm_deinit() ;
     PFATAL("run: pipe") ;
 }
 
@@ -225,7 +225,7 @@ find_fun_id (name_entry_t * func_names, char * callee_name)
         }
     }
     if (!found) {
-        // shm_deinit() ;
+        shm_deinit() ;
         PFATAL("Map overflow") ;
     }
 
@@ -248,11 +248,11 @@ run_addr2line(char ** argv)
     close(err_pipe[0]);
 
     dup2(out_pipe[1],1);
-    dup2(err_pipe[1],2);
-    
+    // dup2(err_pipe[1],2);
+
     execv(argv[0],argv);
 
-    // shm_deinit();
+    shm_deinit();
     PFATAL("Failed to execute addr2line");
 }
 
@@ -267,13 +267,13 @@ save_addr2line_results(u8 ** seeds_per_func_map,char* file_path,name_entry_t * f
 
     FILE * w_fp = fopen(file_path,"wb");
     if(w_fp == 0x0){
-        // shm_deinit();
+        shm_deinit();
         PFATAL("save_addr2line_results: fopen");
     }
 
     FILE * r_fp = fdopen(out_pipe[0],"rb");
     if(r_fp == 0x0){
-        // shm_deinit();
+        shm_deinit();
         PFATAL("save_addr2line_results: fdopen");
     }
 
@@ -326,7 +326,7 @@ get_funcnames_using_addr2line(u8 ** seeds_per_func_map,char* file_path,char ** a
     else if(child_pid > 0){
         save_addr2line_results(seeds_per_func_map,file_path,func_names,seed_id);
     }else{
-        // shm_deinit();
+        shm_deinit();
         PFATAL("translate_pc_values: fork");
     }
 
@@ -335,7 +335,7 @@ get_funcnames_using_addr2line(u8 ** seeds_per_func_map,char* file_path,char ** a
     return ;
 
 pipe_err:
-    // shm_deinit();
+    shm_deinit();
     PFATAL("run: pipe");
 }
 
@@ -351,103 +351,35 @@ write_covered_funs_csv(char * funcov_dir_path)
 
     FILE * fp = fopen(funcov_file_path, "wb") ;
     if (fp == 0x0) {
-        // shm_deinit() ;
+        shm_deinit() ;
         PFATAL("write_covered_funs_csv: fopen") ;
     }
 
-    fprintf(fp, "callee,pc_val\n") ; 
-    // for (int i = 0; i < FUNCOV_MAP_SIZE; i++) {
-        // if (conf->curr_stat->map[i].hit_count == 0) continue ; 
-        // fprintf(fp, "%s\n", conf->curr_stat->map[i].cov_string) ; 
-    // }
+    fprintf(fp, "callee\n") ; 
+    for (int i = 0; i < FUNCOV_MAP_SIZE; i++) {
+        if (conf->curr_stat->map[i].hit_count == 0) continue ; 
+        char f_name[40];
+        addr2line(conf->bin_path,conf->curr_stat->map[i].cov_string,f_name);
+        // fprintf(fp, "%s\n", conf->curr_stat->map[i].cov_string) ;
+        fprintf(fp, "%s\n", f_name) ; 
+    }
 
     fclose(fp) ;
 }
 
-static int stdin_pipe_san[2];
-static int stdout_pipe_san[2];
-static int stderr_pipe_san[2];
-
-void
-read_sancov_result(char* sancov_file_name,char* funcov_file_path){
-
-    if (pipe(stdin_pipe_san) != 0) goto pipe_err ;
-    if (pipe(stdout_pipe_san) != 0) goto pipe_err ;
-    if (pipe(stderr_pipe_san) != 0) goto pipe_err ;
-
-    int child = fork();
-
-    if(child == 0){        
-        close(stdin_pipe_san[1]);
-        close(stdin_pipe_san[0]);
-        close(stdout_pipe_san[0]);
-        close(stderr_pipe_san[0]);
-
-        dup2(stdout_pipe_san[1],1);
-        dup2(stderr_pipe_san[1],2);
-
-
-        char* args[] = {"sancov","-print",sancov_file_name,(char*)0x0};
-        if(execv(args[0],args) == -1){
-            PFATAL("read_sancov_result: execv %s",sancov_file_name);
-        }
-
-    }else if(child > 0){
-        close(stdin_pipe_san[0]) ;
-        close(stdin_pipe_san[1]) ;
-        close(stdout_pipe_san[1]) ;
-        close(stderr_pipe_san[0]) ;
-        close(stderr_pipe_san[1]) ;
-
-        FILE* fp = fopen(funcov_file_path,"wb");
-        if(fp == 0x0){
-            PFATAL("read_sancov_result: fopen");
-            exit(1);
-        }
-
-        char buf[BUF_SIZE];
-        int s = 0;
-        while((s = read(stdout_pipe_san[0],buf,BUF_SIZE)) > 0){
-            if(fwrite(buf,1,s,fp) != s){
-                PFATAL("read_sancov_result: fwrite");
-            }
-        }
-        close(stdout_pipe_san[0]) ;
-        fclose(fp);
-        
-    }else{
-          PFATAL("read_sancov_result: fork") ;
-    }
-    wait(0x0);
-    return ;
-
-pipe_err:
-    PFATAL("run: pipe");
-}
 
 int
 funcov (void * mem, u32 len, u8 * seed_path) 
 {
     signal(SIGALRM, timeout_handler) ;
     strcpy(afl->funcov.input_file, seed_path) ;
-    
-    int child_pid;
-    int exit_code = run(mem, len,&child_pid) ;
-    // printf("child_pid: %d\n",child_pid);
+    int exit_code = run(mem, len) ;
+    conf->curr_stat->exit_code = exit_code ;
+    conf->curr_stat->fun_coverage = count_coverage(conf->curr_stat->map) ;
 
-    char sancov_file_name[PATH_MAX+64];
-    char* ptr = strrchr(conf->bin_path,'/');
-
-    sprintf(sancov_file_name, "%s/sancov/%s.%d.sancov",conf->out_dir,ptr+1,child_pid);
-    // printf("file: %s\n",sancov_file_name);
-
-    char input_filename[PATH_MAX] ;
-    parse_file_name(input_filename, conf->input_file) ; // TODO. tokenize long path
-    
-    char funcov_file_path[PATH_MAX + 256] ;
-    sprintf(funcov_file_path, "%s/funcov_per_seed/%s.csv", conf->out_dir, input_filename) ;
-    read_sancov_result(sancov_file_name,funcov_file_path);
-    // write_covered_funs_csv(funcov_dir_path) ;
+    char funcov_dir_path[PATH_MAX + 32] ;
+    sprintf(funcov_dir_path, "%s/funcov_per_seed", conf->out_dir) ;
+    write_covered_funs_csv(funcov_dir_path) ;
 
     return 0 ;
 }
@@ -461,7 +393,7 @@ read_queued_inputs (u8 ** seeds_per_func_map, char ** seed_names, name_entry_t *
     char src_dir[PATH_MAX] ;
     sprintf(src_dir, "%s/funcov_per_seed", conf->out_dir) ;
     if ((dir_ptr = opendir(src_dir)) == 0x0) {
-        // shm_deinit() ;
+        shm_deinit() ;
         PFATAL("Failed to open %s", src_dir) ;
     }
 
@@ -474,17 +406,9 @@ read_queued_inputs (u8 ** seeds_per_func_map, char ** seed_names, name_entry_t *
             sprintf(seed_path, "%s/%s", src_dir, entry->d_name) ;
             strcpy(seed_names[seed_id], entry->d_name) ;
             
-            char ** addr2line_argv = (char**) malloc(sizeof(char*)*(FUNCOV_MAP_SIZE + 4));
-
-            addr2line_argv[0] = alloc_printf("/usr/bin/addr2line");
-            addr2line_argv[1] = alloc_printf("-fe");
-            addr2line_argv[2] = alloc_printf("%s",conf->bin_path);
-
-            int addr2line_argc = 3;
-
             FILE * fp = fopen(seed_path, "rb") ;
             if (fp == 0x0) {
-                // shm_deinit() ;
+                shm_deinit() ;
                 PFATAL("Failed to open %s", entry->d_name) ;
             }
 
@@ -497,29 +421,29 @@ read_queued_inputs (u8 ** seeds_per_func_map, char ** seed_names, name_entry_t *
                     first = 0 ; 
                     continue ;
                 }
-                //TODO
-                char* ptr = strtok(buf,",");
-                addr2line_argv[addr2line_argc++] = alloc_printf("%s",ptr);
-                ptr = strtok(NULL,",");
-                addr2line_argv[addr2line_argc++] = alloc_printf("%s",ptr);
+                int fun_id = find_fun_id(func_names,buf);
+
+                if(seeds_per_func_map[fun_id][seed_id] == 0){
+                    seeds_per_func_map[fun_id][seed_id] = 1;
+                }
+            //     //TODO
+            //     char* ptr = strtok(buf,",");
+            //     addr2line_argv[addr2line_argc++] = alloc_printf("%s",ptr);
+            //     ptr = strtok(NULL,",");
+            //     addr2line_argv[addr2line_argc++] = alloc_printf("%s",ptr);
                 
             }
 
             fclose(fp) ;
 
-            get_funcnames_using_addr2line(seeds_per_func_map, seed_path, addr2line_argv,func_names ,seed_id);
+            // get_funcnames_using_addr2line(seeds_per_func_map, seed_path, addr2line_argv,func_names ,seed_id);
             
             seed_id++;
-            for(int i = 0; i < addr2line_argc; i++){
-                free(addr2line_argv[i]);
-            }
-
-            free(addr2line_argv);
         }
     }
     
     if (closedir(dir_ptr) == -1) {
-        // shm_deinit() ;
+        shm_deinit() ;
         PFATAL("Failed to open %s\n", src_dir) ;
     }
 
@@ -535,7 +459,7 @@ write_seeds_per_func_map (u8 ** seeds_per_func_map, char ** seed_names, name_ent
             
             FILE * fp = fopen(dst_path, "wb") ;
             if (fp == 0x0) {
-                // shm_deinit() ;
+                shm_deinit() ;
                 PFATAL("Failed to open %s", dst_path) ;
             }
             for (u32 seed_id = 0; seed_id < afl->queued_items; seed_id++) {
@@ -587,6 +511,6 @@ get_seeds_for_func ()
     return 0 ;
 
 alloc_failed:
-    // shm_deinit() ;
+    shm_deinit() ;
     PFATAL("Failed to allocate memory for a seed map") ;
 }

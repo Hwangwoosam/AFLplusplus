@@ -536,7 +536,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
   int opt_idx = 0 ;
   static struct option long_options[] = {
-      {"funcov", 0, 0, 0 },
+      {"funcov", 1, 0, 0 },
       { 0, 0, 0, 0 }
   };
 
@@ -549,6 +549,7 @@ int main(int argc, char **argv_orig, char **envp) {
     switch (opt) {
       case 0:
         if (opt_idx == 0) {
+          strcpy(afl->funcov.directory_path,optarg);
           afl->funcov_mode = 1 ;
         }
         break ;
@@ -2601,7 +2602,7 @@ stop_fuzzing:
   destroy_extras(afl);
   destroy_custom_mutators(afl);
   afl_shm_deinit(&afl->shm);
-  // if (afl->funcov_mode) funcov_shm_deinit(afl) ;
+  if (afl->funcov_mode) funcov_shm_deinit(afl) ;
 
   if (afl->shm_fuzz) {
 

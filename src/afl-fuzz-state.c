@@ -104,9 +104,6 @@ void afl_state_init(afl_state_t *afl, uint32_t map_size) {
   afl->cmplog_lvl = 2;
   afl->min_length = 1;
   afl->max_length = MAX_FILE;
-  //funcov
-  afl->funcov_mode = 0;
-  
 #ifndef NO_SPLICING
   afl->use_splicing = 1;
 #endif
