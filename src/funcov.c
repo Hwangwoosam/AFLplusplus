@@ -232,113 +232,6 @@ find_fun_id (name_entry_t * func_names, char * callee_name)
     return fun_id ;
 }
 
-static int in_pipe[2];
-static int out_pipe[2];
-static int err_pipe[2];
-
-void 
-run_addr2line(char ** argv)
-{
-    close(in_pipe[1]);
-    
-    dup2(in_pipe[0],0);
-    
-    close(in_pipe[0]);
-    close(out_pipe[0]);
-    close(err_pipe[0]);
-
-    dup2(out_pipe[1],1);
-    // dup2(err_pipe[1],2);
-
-    execv(argv[0],argv);
-
-    shm_deinit();
-    PFATAL("Failed to execute addr2line");
-}
-
-void 
-save_addr2line_results(u8 ** seeds_per_func_map,char* file_path,name_entry_t * func_names,int seed_id)
-{
-    close(in_pipe[0]);
-    close(err_pipe[0]);
-    close(in_pipe[1]);
-    close(out_pipe[1]);
-    close(err_pipe[1]);
-
-    FILE * w_fp = fopen(file_path,"wb");
-    if(w_fp == 0x0){
-        shm_deinit();
-        PFATAL("save_addr2line_results: fopen");
-    }
-
-    FILE * r_fp = fdopen(out_pipe[0],"rb");
-    if(r_fp == 0x0){
-        shm_deinit();
-        PFATAL("save_addr2line_results: fdopen");
-    }
-
-    fprintf(w_fp,"pc_val,callee\n");
-    char buf[BUF_SIZE];
-    char callee[BUF_SIZE];
-
-    for(int cnt = 0; fgets(buf,BUF_SIZE,r_fp) != 0x0; cnt++){
-        if(cnt %4 == 0){
-            memset(callee,0,sizeof(char)*BUF_SIZE);
-            
-            strncpy(callee,buf,strlen(buf)-1);
-            callee[strlen(buf)] ='\0';
-
-        }else if(cnt %4 == 2){
-            if(strcmp(callee,"main") == 0) continue;
-            if(strcmp(callee,"??") == 0) continue;
-            if(strcmp(buf,"??") == 0) continue;
-            
-            char* cov_string = alloc_printf("%s,%s",callee,buf);
-            int fun_id = find_fun_id(func_names,cov_string);
-            if(seeds_per_func_map[fun_id][seed_id] == 0){
-                seeds_per_func_map[fun_id][seed_id] = 1;
-            }else{
-                free(cov_string);
-                continue;
-            }
-
-            fprintf(w_fp,"%s,%s",callee,buf);
-            free(cov_string);
-        }
-    }
-
-    fclose(r_fp);
-    fclose(w_fp);
-}
-
-void
-get_funcnames_using_addr2line(u8 ** seeds_per_func_map,char* file_path,char ** argv, name_entry_t * func_names,int seed_id)
-{
-    if(pipe(in_pipe) != 0) goto pipe_err;
-    if(pipe(out_pipe) != 0) goto pipe_err;
-    if(pipe(err_pipe) != 0 ) goto pipe_err;
-
-    int child_pid = fork();
-
-    if(child_pid == 0){
-        run_addr2line(argv);
-    }
-    else if(child_pid > 0){
-        save_addr2line_results(seeds_per_func_map,file_path,func_names,seed_id);
-    }else{
-        shm_deinit();
-        PFATAL("translate_pc_values: fork");
-    }
-
-    wait(0x0);
-
-    return ;
-
-pipe_err:
-    shm_deinit();
-    PFATAL("run: pipe");
-}
-
 void
 write_covered_funs_csv(char * funcov_dir_path) 
 {
@@ -361,7 +254,9 @@ write_covered_funs_csv(char * funcov_dir_path)
         char f_name[40];
         addr2line(conf->bin_path,conf->curr_stat->map[i].cov_string,f_name);
         // fprintf(fp, "%s\n", conf->curr_stat->map[i].cov_string) ;
-        fprintf(fp, "%s\n", f_name) ; 
+        if(strcmp(f_name,"main") != 0){
+            fprintf(fp, "%s\n", f_name) ; 
+        }
     }
 
     fclose(fp) ;
@@ -426,18 +321,11 @@ read_queued_inputs (u8 ** seeds_per_func_map, char ** seed_names, name_entry_t *
                 if(seeds_per_func_map[fun_id][seed_id] == 0){
                     seeds_per_func_map[fun_id][seed_id] = 1;
                 }
-            //     //TODO
-            //     char* ptr = strtok(buf,",");
-            //     addr2line_argv[addr2line_argc++] = alloc_printf("%s",ptr);
-            //     ptr = strtok(NULL,",");
-            //     addr2line_argv[addr2line_argc++] = alloc_printf("%s",ptr);
-                
+            
             }
 
             fclose(fp) ;
 
-            // get_funcnames_using_addr2line(seeds_per_func_map, seed_path, addr2line_argv,func_names ,seed_id);
-            
             seed_id++;
         }
     }
