@@ -1,3 +1,6 @@
+# AFL++ add function coverage using Sanitizer-coverage
+
+
 # American Fuzzy Lop plus plus (AFL++)
 
 <img align="right" src="https://raw.githubusercontent.com/AFLplusplus/Website/master/static/aflpp_bg.svg" alt="AFL++ logo" width="250" heigh="250">
