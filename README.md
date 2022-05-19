@@ -1,6 +1,24 @@
 # AFL++ add function coverage using Sanitizer-coverage
+how to use AFL++ funcov mode
+1. install the project
+```shell
+git clone https://github.com/Hwangwoosam/AFLplusplus.git
+make
+```
+if you want to use funcov mode in AFL++, you have to compile target program separately for funcov.
+binary file for funcov build in fucov_binary directory
+and binary file for AFL++ build.
 
+```shell
+mkdir funcov_binary
+afl-cc -o ./funcov_binary/target --funcov target.c
+afl-cc -o target target.c
+```
 
+if you start to fuzzing, you have to give the path which target for funcov is with funcov option.
+```shell
+afl-fuzz -i [input_dir] -o [output_dir] --funcov [Path] target
+```
 # American Fuzzy Lop plus plus (AFL++)
 
 <img align="right" src="https://raw.githubusercontent.com/AFLplusplus/Website/master/static/aflpp_bg.svg" alt="AFL++ logo" width="250" heigh="250">
