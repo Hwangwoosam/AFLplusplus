@@ -323,6 +323,25 @@ funcov: ./src/funcov_trace_pc_guard.c ./src/funcov_shm_coverage.c
 funcov.o: ./src/funcov.c
 	$(CC) -c ./src/funcov.c
 
+.PHONY: addr2line_ready
+addr2line_ready: bucomm.o version.o filemode.o addr2line.o 
+
+.PHONY: bucomm.o
+bucomm.o:
+	gcc -DHAVE_CONFIG_H -I./binutils/binutils -I./binutils/bfd -I./binutils/bfd -I./binutils/include -DLOCALEDIR="\"/usr/local/share/locale\"" -Dbin_dummy_emulation=bin_vanilla_emulation  -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Wshadow -Wstack-usage=262144 -Werror -I./binutils/zlib -g -O2 -MT bucomm.o -MD -MP -MF .Tpo -c -o ./binutils/binutils/bucomm.o ./binutils/binutils/bucomm.c
+
+.PHONY: version.o
+version.o:
+	gcc -DHAVE_CONFIG_H -I./binutils/binutils -I./binutils/bfd -I./binutils/bfd -I./binutils/include -DLOCALEDIR="\"/usr/local/share/locale\"" -Dbin_dummy_emulation=bin_vanilla_emulation  -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Wshadow -Wstack-usage=262144 -Werror -I./binutils/zlib -g -O2 -MT version.o -MD -MP -MF .Tpo -c -o ./binutils/binutils/version.o ./binutils/binutils/version.c
+
+.PHONY: filemode.o
+filemode.o:
+	gcc -DHAVE_CONFIG_H -I./binutils/binutils -I./binutils/bfd -I./binutils/bfd -I./binutils/include -DLOCALEDIR="\"/usr/local/share/locale\"" -Dbin_dummy_emulation=bin_vanilla_emulation  -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Wshadow -Wstack-usage=262144 -Werror -I./binutils/zlib -g -O2 -MT filemode.o -MD -MP -MF .Tpo -c -o ./binutils/binutils/filemode.o ./binutils/binutils/filemode.c
+
+.PHONY: addr2line.o
+addr2line.o:
+	gcc -DHAVE_CONFIG_H -I./binutils/binutils -I./binutils/bfd -I./binutils/bfd -I./binutils/include -DLOCALEDIR="\"/usr/local/share/locale\"" -Dbin_dummy_emulation=bin_vanilla_emulation  -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Wshadow -Wstack-usage=262144 -Werror -I./binutils/zlib -g -O2 -MT addr2line.o -MD -MP -MF .Tpo -c -o ./binutils/binutils/addr2line.o ./binutils/binutils/addr2line.c
+
 .PHONY: addr2line
 addr2line: 
 	ar crv libaddr2line.a ./funcov.o ./binutils/binutils/addr2line.o ./binutils/binutils/bucomm.o ./binutils/binutils/version.o ./binutils/binutils/filemode.o ./binutils/bfd/libbfd.a ./binutils/libiberty/libiberty.a  ./binutils/zlib/libz.a
@@ -433,6 +452,9 @@ endif
 .PHONY: ready
 ready:
 	@echo "[+] Everything seems to be working, ready to compile."
+
+
+
 
 afl-as: src/afl-as.c include/afl-as.h $(COMM_HDR) | test_x86
 	$(CC) $(CFLAGS) src/$@.c -o $@ $(LDFLAGS)
