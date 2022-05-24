@@ -350,7 +350,7 @@ write_seeds_per_func_map (u8 ** seeds_per_func_map, char ** seed_names, name_ent
                 function_name[last_idx-1] = '\0';
             }
 
-            sprintf(dst_path, "%s/seed_per_func/%s", conf->out_dir, function_name) ;
+            sprintf(dst_path, "%s/per_func_seed/%s", conf->out_dir, function_name) ;
             
             
             FILE * fp = fopen(dst_path, "wb") ;
