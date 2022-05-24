@@ -74,7 +74,7 @@ funcov_init (afl_state_t * init_afl)
         sprintf(afl->funcov.bin_path, "%s/%s/%s", dir_path,afl->funcov.directory_path ,afl->fsrv.target_path + position + 1) ;
     }
     else {
-        sprintf(afl->funcov.bin_path, "./%s/%s",afl->funcov.directory_path,afl->fsrv.target_path) ;
+        sprintf(afl->funcov.bin_path, "%s/%s",afl->funcov.directory_path,afl->fsrv.target_path) ;
     }
 
     if (access(afl->funcov.bin_path, X_OK) == -1) {
@@ -251,12 +251,12 @@ write_covered_funs_csv(char * funcov_dir_path)
     fprintf(fp, "callee\n") ; 
     for (int i = 0; i < FUNCOV_MAP_SIZE; i++) {
         if (conf->curr_stat->map[i].hit_count == 0) continue ; 
-        char f_name[40];
-        addr2line(conf->bin_path,conf->curr_stat->map[i].cov_string,f_name);
+        char f_name[255];
+        // addr2line(conf->bin_path,conf->curr_stat->map[i].cov_string,f_name);
         // fprintf(fp, "%s\n", conf->curr_stat->map[i].cov_string) ;
-        if(strcmp(f_name,"main") != 0){
-            fprintf(fp, "%s\n", f_name) ; 
-        }
+        // if(strcmp(f_name,"main") != 0){
+            // fprintf(fp, "%s\n", f_name) ; 
+        // }
     }
 
     fclose(fp) ;
