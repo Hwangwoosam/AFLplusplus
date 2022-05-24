@@ -252,11 +252,11 @@ write_covered_funs_csv(char * funcov_dir_path)
     for (int i = 0; i < FUNCOV_MAP_SIZE; i++) {
         if (conf->curr_stat->map[i].hit_count == 0) continue ; 
         char f_name[255];
-        // addr2line(conf->bin_path,conf->curr_stat->map[i].cov_string,f_name);
+        addr2line(conf->bin_path,conf->curr_stat->map[i].cov_string,f_name);
         // fprintf(fp, "%s\n", conf->curr_stat->map[i].cov_string) ;
-        // if(strcmp(f_name,"main") != 0){
-            // fprintf(fp, "%s\n", f_name) ; 
-        // }
+        if(strcmp(f_name,"main") != 0){
+            fprintf(fp, "%s\n", f_name) ; 
+        }
     }
 
     fclose(fp) ;
@@ -300,7 +300,7 @@ read_queued_inputs (u8 ** seeds_per_func_map, char ** seed_names, name_entry_t *
             char seed_path[PATH_MAX] ;
             sprintf(seed_path, "%s/%s", src_dir, entry->d_name) ;
             strcpy(seed_names[seed_id], entry->d_name) ;
-            
+      
             FILE * fp = fopen(seed_path, "rb") ;
             if (fp == 0x0) {
                 shm_deinit() ;
@@ -343,7 +343,15 @@ write_seeds_per_func_map (u8 ** seeds_per_func_map, char ** seed_names, name_ent
     for (int fun_id = 0; fun_id < FUNCOV_MAP_SIZE; fun_id++) {
         if (func_names[fun_id].exist) {
             char dst_path[PATH_MAX] ;
-            sprintf(dst_path, "%s/seed_per_func/%s.csv", conf->out_dir, func_names[fun_id].name) ;
+            char function_name[BUF_SIZE];
+            strcpy(function_name,func_names[fun_id].name);
+            int last_idx = strlen(function_name);
+            if(function_name[last_idx-1] =='\n'){
+                function_name[last_idx-1] = '\0';
+            }
+
+            sprintf(dst_path, "%s/seed_per_func/%s", conf->out_dir, function_name) ;
+            
             
             FILE * fp = fopen(dst_path, "wb") ;
             if (fp == 0x0) {
