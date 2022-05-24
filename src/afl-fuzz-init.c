@@ -1970,7 +1970,7 @@ void setup_dirs_fds(afl_state_t *afl) {
     if (mkdir(tmp, 0700)) { PFATAL("Unable to create '%s'", tmp); }
     ck_free(tmp);
 
-    tmp = alloc_printf("%s/funcov/seed_per_func", afl->out_dir) ;
+    tmp = alloc_printf("%s/funcov/per_func_seed", afl->out_dir) ;
     if (mkdir(tmp, 0700)) { PFATAL("Unable to create '%s'", tmp); }
     ck_free(tmp);
 
