@@ -240,7 +240,7 @@ write_covered_funs_csv(char * funcov_dir_path)
     parse_file_name(input_filename, conf->input_file) ; // TODO. tokenize long path
     
     char funcov_file_path[PATH_MAX + 256] ;
-    sprintf(funcov_file_path, "%s/%s.csv", funcov_dir_path, input_filename) ;
+    sprintf(funcov_file_path, "%s/%s", funcov_dir_path, input_filename) ;
 
     FILE * fp = fopen(funcov_file_path, "wb") ;
     if (fp == 0x0) {
@@ -296,7 +296,9 @@ read_queued_inputs (u8 ** seeds_per_func_map, char ** seed_names, name_entry_t *
     
     while ((entry = readdir(dir_ptr)) != 0x0) {
         if (entry->d_name[0] != '.') {
-
+            
+            strcpy(seed_names[seed_id], entry->d_name) ;
+            
             char seed_path[PATH_MAX] ;
             sprintf(seed_path, "%s/%s", src_dir, entry->d_name) ;
             strcpy(seed_names[seed_id], entry->d_name) ;
