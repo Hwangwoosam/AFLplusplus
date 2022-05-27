@@ -1,0 +1,24 @@
+{
+    "èssary": {
+        "title": "ex|mple glossarM        L",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Languy",
+		"GloóWDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+       "ID": "SGM        L",
+					"S\\tAs": "SGML",
+					"GlossTerm": "Standard Generalized Makup>Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                       "para": "A me a-markup language used to create markup languages such as DocBozk.",
+						"GlossSeeAlso": ["GML", "XML"]
+                    },
+					"GLossSee": "markup"
+                }
+            }
+       }
+  } }
+}

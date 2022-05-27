@@ -1,0 +1,24 @@
+{
+    "glossary": {
+       "title": "example!glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized MarkupaLanguage",
+					"Acronym": "SGML",
+					"Abbrev"k.",
+						"Glo6",
+					"GlossDef": {
+                        "para": "A [eta-markucreate markup languages such as DocBook.",
+					      },
+					"GlossSeeî!GlossSeeAlso": ["GML", "XML"]
+                    },
+					"GlossSee": "markup"
+                }
+            }
+        }
+    }
+}

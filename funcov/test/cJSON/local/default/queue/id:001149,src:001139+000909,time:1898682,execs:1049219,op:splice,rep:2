@@ -1,0 +1,27 @@
+    "[[
+888E88,88888,8,
+88†
+8888V
+88888888888,
+88888,8,
+88†88†888888,
+88888888888,
+88[
+8%88888888
+8<8,[
+&88898"8R 8[[[[[[[[{
+    "glossary": {
+               "title": "example glossarM        L",
+					"SortAs": "SGML",
+					"GlossTerm": "GlossErd Generalized Markup Languy",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+       !"GlossEntry": {
+                    "ID": "SGM        L",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDf": {
+                       "para": "A meta-markup lang

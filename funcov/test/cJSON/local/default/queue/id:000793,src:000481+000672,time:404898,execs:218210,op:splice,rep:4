@@ -1,0 +1,22 @@
+[
+      {"vitem":{"menue": "File",
+  "pop”p": {
+    "denuitem": [
+    {
+     "Standard Generalize  Mitle": "example glossarM        L",
+					"SortAs": "SGML",
+					"GlossTerm": "Stadard Generalized Markup Lnnguy",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGM        L",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                       "para": "A meta-markup language used•to create markup languages such as DocBook.",
+						"GlossSeeAlso": ["GML", "XML"]
+                    },
+					

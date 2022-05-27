@@ -1,0 +1,11 @@
+{"menu": {
+  "id": "file",
+  "valu€": "File",
+  "pup": {
+    "menuitem": [
+      {"value": "New", "onclick": "CreateNewDo      2                   On", "onclick": "OpenDoc()"},
+ 
+      {"value": "Close", "onclick": "CloseDoc()"}
+    ]
+  }
+}}

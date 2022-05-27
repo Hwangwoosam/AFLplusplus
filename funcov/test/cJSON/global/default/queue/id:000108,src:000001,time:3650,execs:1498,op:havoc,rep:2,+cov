@@ -1,0 +1,22 @@
+{
+    "glossary": {
+        "title": "exossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+                },
+										"GlossDef": {
+                        "para": "A meta-markup language, used to create mark": "SGML",
+"GlossSee": "markup,
+						"GlossSeeAlso": ["GML", "XML"]
+    					"Acronym": "SGML",
+"GlossSee": "markup"
+                }
+            }
+        }
+    }
+}

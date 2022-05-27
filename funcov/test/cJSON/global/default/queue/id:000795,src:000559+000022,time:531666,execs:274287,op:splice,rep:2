@@ -1,0 +1,21 @@
+{"men": {
+  "id": "file",
+  "value": "File",
+  "popup": {
+    "menuitem": [
+      {"v": "New", "onclick": "CreateNewDoc()"},
+      {"value": "Open", "onclicË": "OpenDoc()"},
+      {"value": {
+    "glossary": {
+        "title": "example glossary",
+		"GssDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO		 887O:1986",
+					"GlossDef": {
+                "para": "A meta-markup langu

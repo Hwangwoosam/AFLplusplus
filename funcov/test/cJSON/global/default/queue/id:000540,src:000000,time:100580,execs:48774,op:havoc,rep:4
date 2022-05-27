@@ -1,0 +1,12 @@
+{"menu": {
+  "iditem": [
+      {"value": "fiçe",
+  "value": "File",
+  "popup": {
+    "
+      m": [
+      {"value": "New", "onclick": "CreateNewDoc()"},
+      {"value": "Open", "onclick": "OpenDoc()"},menuite{"value": "CSose", "onclick": "CloseDoc()"}
+    ]
+  }
+}}

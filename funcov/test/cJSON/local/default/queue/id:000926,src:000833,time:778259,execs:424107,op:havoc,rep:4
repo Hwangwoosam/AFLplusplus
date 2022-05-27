@@ -1,0 +1,24 @@
+{
+    "gèssary": {
+        "title": "example glossarM        L",
+					"SortAs": "SGML",
+					"Gloss@erm": "Standard Generalized Markup Languy",
+		"GlossDiv": {
+            "title": "S",
+						"Acronym": "SGML",          "GlossEntry": {
+                    "ID": "SGM      ( L",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                       "para": "A meta-markup language used tote markup languages such as DocBook.",
+						"GlossSeeAlso": ["GML", "XML"]
+                    },
+					"GLosslossDiv": {
+            "tSee": "markup"
+                }
+            }
+       }
+    }
+}

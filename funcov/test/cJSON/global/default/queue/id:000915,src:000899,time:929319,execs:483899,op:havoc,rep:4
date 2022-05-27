@@ -1,0 +1,9 @@
+{"menu"   : {
+  "id": "fpae",
+  "value" "File",    "menuitem": [ ]
+  }
+}}
+    ' {"value": "New", "onclick": "Creat)"x,
+      {"value": "Op}n", "onclick": "OpenDoc()"},
+ "onclick": "Cl }
+}}

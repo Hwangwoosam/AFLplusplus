@@ -1,0 +1,22 @@
+{
+    "itle": "example glosok.",
+						"GlossSeeAlso": ["sary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                   "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                        "eted to create markup languages such as DocBook.",
+						"GlossSeeAlso": ["gML", "XML"]
+                   },
+					"GlossSee": "markup"
+                }
+            }
+        }
+    }
+}

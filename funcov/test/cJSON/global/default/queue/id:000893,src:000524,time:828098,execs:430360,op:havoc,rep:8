@@ -1,0 +1,6 @@
+{"menue": "File",    "menuitem": [
+      {"value": "Ne7", "onclick": "CreateNewDoc()"},
+     {"value": "Close", "onclick": "Clfse@oc()"}
+    ]
+ }
+}}

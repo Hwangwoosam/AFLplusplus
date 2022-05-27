@@ -1,0 +1,40 @@
+{"menu": {
+  "id": "file",
+  "value": "File",    "menuitem": [
+      {"value": "New", "onclick
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+lee": "Open", "onclick": "OpenDoc()"},
+      {"value": "Close", "onclick": "ClfseDoc()"}
+    ]
+  }
+}}

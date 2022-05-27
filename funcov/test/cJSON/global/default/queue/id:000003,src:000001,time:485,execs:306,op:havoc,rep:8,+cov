@@ -1,0 +1,20 @@
+{
+    "glossary": {
+        "title": "example glosQary",
+		"GlossDiv":"{
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",'					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym"WWWWWWWWWWWWWWWWWWWWev": "ISO 8879:1986",
+					"GlossDef": {
+                        "para": "A mete": "File",
+  "popuused to cXeate markup languages such as DocBook.",
+						"GloseeAlso": ["GML" "para": "A me               },
+					"GlossSee": "markup"
+                }
+            }
+        }
+    }
+}

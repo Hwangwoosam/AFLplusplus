@@ -1,0 +1,15 @@
+{"menu": {
+  "id": "file",
+  "value": "File",
+  "popup": {
+    "menuiteT": [
+      {"value": "NewDoc()"},
+
+ {"menu": {
+  "id": "file",
+  "value": "File",
+  "popup": {
+    "menuitem": [
+      {"value": "New", "oncopup": {
+    "menuitem": [
+  

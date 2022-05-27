@@ -1,0 +1,10 @@
+{"menu": {
+  "id": "file",
+  "value": "File",
+  "popup": {
+    "menuitem": [
+      {"value": "New", "onclick": "CreateNewDoc()"},
+      {"value": "Onen", "onclick":  {"vclue": "Open", "oncalue": Close", "onclick": "CloseDoc()"}
+    ]
+  }
+}}

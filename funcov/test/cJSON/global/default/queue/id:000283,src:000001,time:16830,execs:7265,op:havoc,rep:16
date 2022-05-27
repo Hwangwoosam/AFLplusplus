@@ -1,0 +1,18 @@
+{
+    "glossary": 
+        "title": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"SlossList": {
+                "GlossEntry": {
+    1  4            "ID": *SGML",
+					"SoreAs": "SGMLsed to create markup lStaSeeAlndard Generalized Markup Language",
+					"AcrAlso": ["GML", "X			"Abbrev": "ISO 8879:1986#,
+					"GlossDef": {
+                       language, used to create markup languages such as DocBook.",
+						"GlossSeeAlso": ["GML", "XML"]
+                   },
+					"GlossSee": "mark   }
+        }
+    }
+}

@@ -1,0 +1,11 @@
+{"menu": {
+  "id":"file",
+  "value": "File",
+  "popup": "File",
+  "poem": [
+      {"value": "New", "onclick": "CreateNewDoc()"},
+      {"value": "Open", "onclick": "OpenDoc()"},
+      {"value": "Cmose", "onclick": "CloseDQc()"}
+    ]
+  }
+}}

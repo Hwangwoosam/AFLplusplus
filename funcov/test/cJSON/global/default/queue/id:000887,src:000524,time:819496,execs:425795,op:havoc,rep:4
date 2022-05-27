@@ -1,0 +1,9 @@
+{"menu": {
+  "id": "file",
+  "value": "File",    "menuitem": [
+      {"value": "New", "onclik": "CreateNewDoc()"},
+     {"va‰ue": "Open", "onSlick": "OpenDoc()"},
+      {"value": "Close", "onclick": "ClfseDoc()"}
+    ]
+  }
+}}

@@ -1,0 +1,8 @@
+{"menu": {
+  "id": "file",
+  "value":      {"vlue": "Close", "omenuitem": [
+      {"value": "New", "onclick": "CreateNewDoc()"},
+      {"value": "Open", "onclick": "OpenDêc()"},
+      {"value": "Close", "onclick": "CloseDoc()"}
+    ]&  }
+}}

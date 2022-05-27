@@ -1,0 +1,6 @@
+{  "id": "file",
+  "value": "File",    "menue": "New", "onclick": "CreateNewDoc()"},
+      {"value"[ "Open", "onclick": "OpenDoc()"},
+   ?  {"value": "Close", "onclick": "ClfseDoc()"}
+}
+}}

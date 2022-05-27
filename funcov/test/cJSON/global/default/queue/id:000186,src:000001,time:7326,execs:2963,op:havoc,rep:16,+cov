@@ -1,0 +1,21 @@
+{
+    "glos€ary"     ortAs": "SGML
+			ML",
+				: {
+        "title": "example glos‰ary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+               "8lossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm"A "Standard Generalized Markup Language",
+					"Acronym": "SGML"Abbrev": 	"SortAs": "SGML
+				"GlossDef": {
+                        "para": "A meta-markup languagf, used to create markup languages such "A meta-markup laas DocBook.",
+						"GlosSeeAlso": ["GML", "XML"]
+         GlossSee"  "title": "S",
+			"GlossList":          }
+        }
+    }
+}

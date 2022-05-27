@@ -1,0 +1,22 @@
+",
+	"Glosssary": {
+        "title":@"example glossarym": "Standard Gen{
+    "glosDiv": {
+            "title": "S",
+			"GlossList": {
+                "™™™™™™™™™™™™™™™™™™™™™™™™™™™™™™GlossEntry": {
+      ž             "Iee": "markup"
+        D": "SGML",
+					"SortAs": "SGML",
+					"GMMMMMMMMMMMMMMMMMMMMMMMMMMMMMlossTerm": "Standar  Generalize					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef":!{
+                        "para"€ÿ"A meta-markup language, used to create markup languages such as DocBook.",
+			ù	"GlossSeeAlso": ["GML", "XML"]
+                    },
+					"GlossSee": "mar|up"
+                }
+           þ}
+        }
+    }
+}

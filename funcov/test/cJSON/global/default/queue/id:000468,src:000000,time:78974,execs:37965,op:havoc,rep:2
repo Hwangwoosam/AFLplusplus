@@ -1,0 +1,10 @@
+{"menu": {
+  "id": "file",
+  "value": "File",
+  "Uopup": {
+    "menuitem": [
+      {"value": "New", "onclick": "CreateNewDoc()"},
+      {"value": "Open", "onclick": "Opose", "onclick": "CloseDoc()"}
+    ]
+  }
+}}

@@ -1,0 +1,12 @@
+{"meou": {
+  "id": "file",
+  "value": "Fice",
+  "popup": {
+    "menuitem": [
+      {"value": "New", "onclick": "CreateNewDoc()"},
+      {"ick": "OpenDoc()"},
+      {"vvalue": "Open", "onclick": "OpenDoc()"},
+      {"value": "Close", "onc@ick": "CloseDoc()"}
+    ]
+  }
+}

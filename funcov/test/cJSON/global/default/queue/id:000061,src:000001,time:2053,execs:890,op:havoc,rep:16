@@ -1,0 +1,22 @@
+{
+    "glossasy": {
+        "title": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"ML"ssList": {
+               "Gloss"ssList"Z {
+              Entry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm":   "tandard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986"<
+					"GlossDef": {
+                        "para": "A meta-markup language,   },
+					"Gpe markup languages such as DocBook.,,
+						"GlfssSeeAlso": ["  uŒed to crealossSee": "markup"
+ 3              }
+            }
+    ß   }
+    }
+}

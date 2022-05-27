@@ -1,0 +1,11 @@
+{"men": {
+  "id": "file",
+  "value": "File",
+  "popup": {
+    "menuitem": [
+      {"v": "New", "onclick": "CreateNewDoc()"},
+      {"value": "Open", "onclicË": "OpenDoc()"},
+      {"value": "Close", "pnclick": "CloseDoc()"}
+    ]
+  }
+}}

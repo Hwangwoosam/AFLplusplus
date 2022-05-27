@@ -1,0 +1,20 @@
+{"menu":                 {"menu": {
+  "id": "file",
+  "value": "File",
+  "pnu":          {
+   
+    "glossary":    "GlossEntry": {
+ ÿÿ     glossary",
+		"GlossDiv": {
+            "title": "ÿÿ,
+			"GlossList": {
+×               "GlossEntry": {
+ ÿÿ                "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                        "para": "A meta-merkup languafe, used tosuch as DocBook.",
+						"GlossSeeAlso": ["GML", "XML"]
+     

@@ -1,0 +1,14 @@
+{"menu":                 {"menu":        {"menu":    "title": "example glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard.Generalized Markup Language",
+					"Acr: "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                        "para": "A meta-markup lang€age, used to create markuS languages \uch as DocBook.",
+						"GlossSeeAlso": ["GML", "                },
+					"GlossSee": "m

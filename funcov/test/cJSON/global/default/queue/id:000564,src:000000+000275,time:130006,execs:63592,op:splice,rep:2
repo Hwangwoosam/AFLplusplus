@@ -1,0 +1,21 @@
+{"menu": {
+  "id": "file",
+ 	"value": "File",
+  "popup": {
+    "menuitem": [
+      {"value": "New", "onclick": "CreateNewDoc()"},
+      {"value": "OpepenDoc()"},
+      {"value": "Close",  "S   ",
+				{
+    "glossary": {
+        "title": "exa		"GlossDiv": {
+            "tsTerm: "S",
+			"GlossList": {
+                >Glossÿtry": {
+    ,               "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standart Generalized Markup Language8,
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+     &    

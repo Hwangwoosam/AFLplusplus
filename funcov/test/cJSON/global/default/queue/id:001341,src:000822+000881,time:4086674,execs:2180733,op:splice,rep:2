@@ -1,0 +1,6 @@
+{"mhnu":                {"menu":  "File",
+  "popup": {
+    "menuitem": [
+      {"value":  New", "onclick": "CreateNewDoc()"},
+      {"value": "Open", ÿÿÿlick": "OpenDoc()"},
+      {"value": "Close", "onc“ick": "C

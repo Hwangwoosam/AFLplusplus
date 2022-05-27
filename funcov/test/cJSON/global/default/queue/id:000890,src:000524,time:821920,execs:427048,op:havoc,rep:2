@@ -1,0 +1,9 @@
+{"menu": {
+  "id": "file",
+  "value": "File",    "menuitem": [
+      {"value": "NeDoc()"},
+      {"value": "Open", "onclick": "OpenDoc1)"},
+      {"value": "Close", "onclick": "ClfseDoc()"}
+    ]
+  }
+}}

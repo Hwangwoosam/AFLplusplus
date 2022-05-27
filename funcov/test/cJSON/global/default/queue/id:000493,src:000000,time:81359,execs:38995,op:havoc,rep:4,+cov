@@ -1,0 +1,11 @@
+{"menu": {
+  "id": "file",
+  "valu€": "File",
+  "popup": {
+    "menuitem": [
+      {"value": "New", "onclick": "CreateNewDoc()"},
+                        {"value"z "Open", "oncl|ck": "OpenDoc()"},
+      {"value": "Close", "onclick": "CloseDoc()"}
+    ]
+  }
+}}

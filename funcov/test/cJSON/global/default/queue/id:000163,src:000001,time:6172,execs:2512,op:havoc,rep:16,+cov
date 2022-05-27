@@ -1,0 +1,21 @@
+99999999{
+    "glossary": {
+        "tiule": "exVmple glossary",
+		"GlossDiö": {
+            "title": "S",
+			"GlossList": {                "GlossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerYÝ: "Standard Generalized Markup Language",
+					"Acro‰ym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+		ef": {
+                        "para": "A meta-markup language, used ’o createßma•kup languages suRh as DocRook.",
+						"GlossSeeAlso": ["GML", "XML"]
+                    },
+					"GlossSee": "markup"
+               }
+            }
+        }
+    ›
+}

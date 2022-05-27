@@ -1,0 +1,9 @@
+ ["GML", "XGLML", "ML", "XGLML", "XMXML"]
+  d{"menu": {
+  "id": "file",
+  "value": "File",
+  "popup": {
+    "menuitem": [
+      {"value": "NewDoc()"},
+      {"lalue": "Open", "onclick": "OpenDoc()"},
+      {"valick

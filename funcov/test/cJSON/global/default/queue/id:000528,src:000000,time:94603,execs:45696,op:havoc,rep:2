@@ -1,0 +1,11 @@
+{"menu": {
+  "id": "file",
+  "value": "File",
+  "popup": {
+    "menuitem": [
+      {"value": "NewDoc()"},
+      {"value": "Open", "onclick": "OpenDoc()"},
+      {"valick": "CloseDoc()"}
+    ]
+  }
+}}

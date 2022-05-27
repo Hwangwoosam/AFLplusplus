@@ -1,0 +1,11 @@
+{"menu": {
+  "id": "fipen", "onclick": "Ole",    "menuitem": [
+      {"value": "oc()"}
+    ]
+  }
+}}reateNewDoc()"},
+      {"value": "Open", "onclick": "OpenDoc()"},
+      {"value": "Close" "onclihk": "ClfseDoc()"}
+    ]
+  }
+}}

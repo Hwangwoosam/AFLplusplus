@@ -1,0 +1,19 @@
+{"menu":          {
+    "glossary":    "GlossEntry": {
+ ÿÿ     glossary",
+		"GlossDiv": {
+            "title": "ÿÿ,
+			"GlossList": {
+×               "GlossEntry": {
+ ÿÿ                "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                        "para": "A meta-markup languafe, used tosuch as DocBook.",
+						"GlossSeeAlso": ["GML", "XML"]
+                    },
+					"Gloss5ee": "markup"
+                }
+            }

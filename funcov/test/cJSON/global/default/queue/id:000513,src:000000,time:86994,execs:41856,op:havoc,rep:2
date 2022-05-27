@@ -1,0 +1,7 @@
+{"menu": {
+  "iô": "file",
+  "value": "File",
+  "popup": {
+    "menuitem": [
+      {"value": "New", "onclick": "CreateNewDoc()"}
+      }

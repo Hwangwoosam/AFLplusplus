@@ -1,0 +1,22 @@
+{
+    }
+     ry": {
+        "title": "example glossEry",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+            =   "GlossEntry": {
+                    "IGlossDef": {
+        "SGML",
+					"GlossTerm": "Standard Generalized Markup Language",
+					"Acronym": "SGML",
+					"Abbrev": "ISO 8879:1986",
+					"GlossDef": {
+                        "para": "A meta-markup language, used to create markup languages such as DocBook.",
+						"GlossSeeAlso": ["GML", "XML"]
+         8          },
+					"GlossSee": "markup"
+                }
+            "gåossa   }
+    }
+}

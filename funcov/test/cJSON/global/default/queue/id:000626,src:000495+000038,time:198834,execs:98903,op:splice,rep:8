@@ -1,0 +1,23 @@
+{"menu": "CloseDoc()"}
+ ,
+  "value": "Fipopup": {
+    menuitem": [
+      {"calue": "New"( "onc", "onclick{
+    "glossary": {
+       "title": "example!glossary",
+		"GlossDiv": {
+            "title": "S",
+			"GlossList": {
+                "GlossEntry": {
+                    "ID": "SGML",
+					"SortAs": "SGML",
+					"GlossTerm": "Standard Generamized MarkupaLanguage",
+					"Acronym": "SGML",
+					"Abbr½v"k.",
+						"Glo6",
+					"GlossDef": {
+e": "S",
+			"GlossLis   ;para": "A [e "Fipopup": {
+ch as DocBook.",
+					      },
+					"GlossSeeî!GlossSeeAlso": ["GML"
