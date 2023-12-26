@@ -1,3 +1,9 @@
+AFL ++ 성능 향상 프로젝트
+
+#Trouble Shooting   
+기존 backtrace_symbols()를 통해 함수 정보를 옮겨올 경우 Inline 함수에 대한 정보를 가져오지 못함  
+:__builtin_return_address()로 함수 교체 이후 addr2line Linux의 명령어 함수화를 통해 해당 부분 해결
+
 # AFL++ add function coverage using Sanitizer-coverage
 how to use AFL++ funcov mode
 1. install the project
@@ -19,6 +25,9 @@ if you start to fuzzing, you have to give the path which target for funcov is wi
 ```shell
 afl-fuzz -i [input_dir] -o [output_dir] --funcov [Path] target
 ```
+
+
+
 # American Fuzzy Lop plus plus (AFL++)
 
 <img align="right" src="https://raw.githubusercontent.com/AFLplusplus/Website/master/static/aflpp_bg.svg" alt="AFL++ logo" width="250" heigh="250">
